@@ -1,0 +1,4 @@
+*.layout
+obj
+bin/*
+!bin/data
