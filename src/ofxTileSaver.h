@@ -114,7 +114,7 @@ public:
 		if(!bGoTiling)
 			return;
 
-		current.grabScreen(border, border, tileWidthNoBorder, tileWidthNoBorder);
+		current.grabScreen(border, border, tileWidthNoBorder, tileHeightNoBorder);
 		if(!bBigImage){
 			current.saveImage(ofToString(currentTile)+".png");
 		} else {
