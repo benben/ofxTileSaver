@@ -98,13 +98,17 @@ public:
 
 			if(bBigImage)
 				final.done(fileName, bFlipY);
+
 			setPerspective();
 			positionCamera();
+			ofSetOrientation(ofGetOrientation(), true);
 			bGoTiling = false;
 			currentTile = 0;
 			return;
 		}
 
+
+		ofSetOrientation(ofGetOrientation(), false);
 		setFrustum(currentCol, currentRow);
 		positionCamera();
 	}
@@ -164,23 +168,15 @@ public:
 	}
 
 	void setPerspective(){
-		glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-
-        gluPerspective(fov, aspect, nearZ, farZ);
+        ofSetupScreenPerspective(ofGetWidth(), ofGetHeight(), fov, nearZ, farZ);
 	}
 
 	void positionCamera(){
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		gluLookAt(pos.x, pos.y, pos.z,
-				  eye.x, eye.y, eye.z,
-				  up.x, up.y, up.z);
-
-
-		//glScalef(1, -1, 1);           // invert Y axis so increasing Y goes down.
-		//glTranslatef(0, -height, 0);
+		ofSetMatrixMode(OF_MATRIX_MODELVIEW);
+		ofLoadIdentityMatrix();
+		ofMatrix4x4 m;
+		m.makeLookAtViewMatrix(pos, eye, up);
+		ofLoadMatrix(m);
 	}
 
 	//this is the important part, the Frustum gets setup correctly so we can tile perfectly
@@ -198,18 +194,20 @@ public:
 	    float bottom = Bottom + (Top - Bottom) * ((steps-1-_row)* tileHeightNoBorder-border) / imageHeight;
 	    float top    = bottom + (((Top - Bottom) * tileHeight) / imageHeight);
 
-		glViewport(0, 0, tileWidth, tileHeight);
+		ofViewport(0, 0, tileWidth, tileHeight);
 
-	    glMatrixMode(GL_PROJECTION);
-	    glLoadIdentity();
+	    ofSetMatrixMode(OF_MATRIX_PROJECTION);
+	    ofLoadIdentityMatrix();
 
 	    // this is strange but we need it
 	    float diff = 0;
 
 		curFrustum.set(left, right, bottom+diff, top+diff, Near, Far);
 
-	    glFrustum(left, right, bottom+diff, top+diff, Near, Far);
-	}
+		ofMatrix4x4 m;
+	    m.makeFrustumMatrix(left, right, bottom+diff, top+diff, Near, Far);
+	    ofLoadMatrix(m);
+ 	}
 
 	ofxFrustumData getCurFrustum(){
 		return curFrustum;
